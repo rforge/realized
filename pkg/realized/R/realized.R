@@ -3,17 +3,17 @@
 	library.dynam("realized")
    
     cat("Realized Library:  Realized Variance, Covariance, Correlation Estimation and Tools.\n")
-    cat("Available in R and S+.\n")
+   # cat("Available in R and S+.\n")
     cat(" R:  http://cran.r-project.org\n")
-    cat("S+:  http://csan.insightful.com\n")
-    cat("Copyright (C) 2007  Scott W. Payseur <spayseur@u.washington.edu>\n\n")
+   # cat("S+:  http://csan.insightful.com\n")
+    cat("Copyright (C) 2010  Scott W. Payseur <scott.payseur@gmail.com>\n\n")
    
-    cat("This program is free software with restricted commercial use.\n")
-    cat("See LICENSE file for more details.\n")
+   # cat("This program is free software with restricted commercial use.\n")
+   # cat("See LICENSE file for more details.\n")
 
-    cat("This program is distributed in the hope that it will be useful,\n")
-    cat("but WITHOUT ANY WARRANTY; without even the implied warranty of\n")
-    cat("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n")
+   # cat("This program is distributed in the hope that it will be useful,\n")
+  #  cat("but WITHOUT ANY WARRANTY; without even the implied warranty of\n")
+  #  cat("MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n")
 
     cat("Please report any bugs or feature requests to the author.  User's manual\n")
     cat("in the 'realized' library directory.\n\n\n")
@@ -170,11 +170,11 @@ rKernel.available <- function()
 }
 
 
-rv.kernel <- function(x, q, align.period=1, adj=TRUE, type=0, cts=TRUE, makeReturns=FALSE, ...)
+rv.kernel <- function(x, q, align.period=1, adj=TRUE, type=0, cts=TRUE, makeReturns=FALSE, rvargs=list(),...)
 {	
-    if(!is.null(args$period))
+    if(!is.null(rvargs$period))
     {
-    	align.period=args$period
+    	align.period=rvargs$period
     }
 	cdata <- .convertData(x, cts=cts, makeReturns=makeReturns)
 	x <- cdata$data
@@ -335,23 +335,23 @@ rc.naive <- function(x, y,  period, align.period=1, cts=TRUE, makeReturns=FALSE,
 # Global Call 
 #
 #######################################
-rRealized.variance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, args = list(), cts=TRUE, makeReturns=FALSE)
+rRealized.variance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, rvargs = list(), cts=TRUE, makeReturns=FALSE)
 {
 	warning("Depricated:  call rRealizedVarianc")
-	rRealizedVariance(x=x, y=y, type=type, period=period, lags=lags, cor=cor, args=args, cts=cts, makeReturns=makeReturns)
+	rRealizedVariance(x=x, y=y, type=type, period=period, lags=lags, cor=cor, rvargs=rvargs, cts=cts, makeReturns=makeReturns)
 }
 
-rRealisedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, args = list(), cts=TRUE, makeReturns=FALSE)
+rRealisedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, rvargs = list(), cts=TRUE, makeReturns=FALSE)
 {
-	rRealizedVariance(x=x, y=y, type=type, period=period, lags=lags, cor=cor, args=args, cts=cts, makeReturns=makeReturns)
+	rRealizedVariance(x=x, y=y, type=type, period=period, lags=lags, cor=cor, rvargs=rvargs, cts=cts, makeReturns=makeReturns)
 }
 
 
-rRealizedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, args = list(), cts=TRUE, makeReturns=FALSE)
+rRealizedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, rvargs = list(), cts=TRUE, makeReturns=FALSE)
 {
-	if(!is.null(args$align.period))
+	if(!is.null(rvargs$align.period))
 	{
-	    align.period =args$align.period
+	    align.period =rvargs$align.period
 	}
 	else
 	{
@@ -376,14 +376,14 @@ rRealizedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor
 	     			}
 	     			else
 	     			{
-	     				ans[i,j] <- .realized.variance(x=.getDataCol(x,j), y=NULL, type=type, period=period, lags=lags, args=args, cts=cts, makeReturns=makeReturns)
+	     				ans[i,j] <- .realized.variance(x=.getDataCol(x,j), y=NULL, type=type, period=period, lags=lags, rvargs=rvargs, cts=cts, makeReturns=makeReturns)
 	     			}
 	     		}
 	     		else
 	     		{
 	     		    if(j > i)
 	     		    {
-	     		    	ans[i,j] <- .realized.variance(x=.getDataCol(x,i), y=.getDataCol(x,j), type=type, period=period, lags=lags, args=args, cor=cor, cts=cts, makeReturns=makeReturns)
+	     		    	ans[i,j] <- .realized.variance(x=.getDataCol(x,i), y=.getDataCol(x,j), type=type, period=period, lags=lags, rvargs=rvargs, cor=cor, cts=cts, makeReturns=makeReturns)
 	     		    	ans[j,i]<-ans[i,j]
 	     		    }	
 	     		}
@@ -393,7 +393,7 @@ rRealizedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor
 	}
 	else
 	{
-		ans <- .realized.variance(x=x, y=y, type=type, period = period, lags = lags, cor = cor, args = args, cts=cts, makeReturns=makeReturns)
+		ans <- .realized.variance(x=x, y=y, type=type, period = period, lags = lags, cor = cor, rvargs = rvargs, cts=cts, makeReturns=makeReturns)
 	}
 #	class(ans) <- "rRealized.variance"
 	ans
@@ -401,19 +401,19 @@ rRealizedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor
 
 
 
-.realized.variance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, args = list(), cts=TRUE,makeReturns=FALSE)
+.realized.variance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, rvargs = list(), cts=TRUE,makeReturns=FALSE)
 {   
 	if(cor)
 	{
-		rvx <- do.call(paste("rv.", type, sep=""), c(args,list(x=x, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
-		rvy <- do.call(paste("rv.", type, sep=""), c(args,list(x=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
-		rcxy <- do.call(paste("rc.", type, sep=""), c(args,list(x=x, y=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
+		rvx <- do.call(paste("rv.", type, sep=""), c(rvargs=rvargs,list(x=x, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
+		rvy <- do.call(paste("rv.", type, sep=""), c(rvargs=rvargs,list(x=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
+		rcxy <- do.call(paste("rc.", type, sep=""),c(rvargs=rvargs,list(x=x, y=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
 		rcxy/(sqrt(rvx)*sqrt(rvy))
 	}
 	else
 	{
 		funct <- paste(ifelse(is.null(y), "rv.", "rc."), type, sep="")
-		do.call(funct, c(args, list(x=x, y=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))	
+		do.call(funct, c(rvargs=rvargs, list(x=x, y=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))	
 	}
 }
 
@@ -454,7 +454,7 @@ rCumSum <- function(x, period = 1, align.period=1, plotit=FALSE, type='l', cts =
 	ans
 }
 
-rScatterReturns <- function(x,y, period, align.period=1,numbers=FALSE,xlim= NULL, ylim=NULL, plotit=TRUE, pch=NULL, cts=TRUE, makeReturns=FALSE, scale.size=0, col.change=F,...)
+rScatterReturns <- function(x,y, period, align.period=1,numbers=FALSE,xlim= NULL, ylim=NULL, plotit=TRUE, pch=NULL, cts=TRUE, makeReturns=FALSE, scale.size=0, col.change=FALSE,...)
 {
 
 	y<- .alignReturns(.convertData(y, cts=cts, makeReturns=makeReturns)$data, align.period)
@@ -566,7 +566,7 @@ rc.hy <- function(x,y, period=1, align.period =1, cts = TRUE, makeReturns=FALSE,
 #
 # Signature Plot
 #
-rSignature <- function(range, x, y=NULL, type="naive", cor = FALSE, args = list(), xscale=1, iteration.funct="", iterations=NULL, plotit=FALSE, cts=TRUE, makeReturns=FALSE)
+rSignature <- function(range, x, y=NULL, type="naive", cor = FALSE, rvargs = list(), xscale=1, iteration.funct="", iterations=NULL, plotit=FALSE, cts=TRUE, makeReturns=FALSE)
 {
 	
     
@@ -575,7 +575,7 @@ rSignature <- function(range, x, y=NULL, type="naive", cor = FALSE, args = list(
 		x <- .convertData(x, cts=cts, makeReturns=makeReturns)$data
         y <- .convertData(y, cts=cts, makeReturns=makeReturns)$data
     	ans <- list(x=range*xscale, 
-        	 y=sapply(range, function(r, x, y, type, period, lags, cor, args){.realized.variance(x=x, y=y, type=type, period = r, lags = r, cor = cor, args = args)},x=x,y=y,type=type, cor=cor, args=args),
+        	 y=sapply(range, function(r, x, y, type, period, lags, cor, rvargs){.realized.variance(x=x, y=y, type=type, period = r, lags = r, cor = cor, rvargs = rvargs)},x=x,y=y,type=type, cor=cor, rvargs=rvargs),
         	 xgrid=range,
         	 type = type,
         	 cor = cor,
@@ -585,26 +585,26 @@ rSignature <- function(range, x, y=NULL, type="naive", cor = FALSE, args = list(
 	else
 	{
 	     ans <- sapply(1:length(iterations), 
-	     	function(i,iterations, iteration.funct,range, x, y, type, period, lags, cor, args, cts, makeReturns)
+	     	function(i,iterations, iteration.funct,range, x, y, type, period, lags, cor, rvargs, cts, makeReturns)
 	     	{
 	     		if(!is.null(y))
 	     		{
-	     	    	y.new <- do.call(iteration.funct, args=list(x=y, i=iterations[i], args=args))
+	     	    	y.new <- do.call(iteration.funct, args=list(x=y, i=iterations[i], rvargs=rvargs))
 	     		}
 	     		else
 	     		{
 	     	    	y.new <- NULL
 	        	}
 	     		sapply(range, 
-	     	 		function(r, x, y, type, period, lags, cor, args, cts, makeReturns)
+	     	 		function(r, x, y, type, period, lags, cor, rvargs, cts, makeReturns)
 	         		{
-	     	     		.realized.variance(x=x, y=y, type=type, period = r, lags = r, cor = cor, args = args)
+	     	     		.realized.variance(x=x, y=y, type=type, period = r, lags = r, cor = cor, rvargs = rvargs)
 	         		},
-	         	x=do.call(iteration.funct, args=list(x=x, i=iterations[i], args=args)), 
+	         	x=do.call(iteration.funct, args=list(x=x, i=iterations[i], rvargs=rvargs)), 
 	         	y=y.new,
 	         	type=type, 
 	         	cor=cor, 
-	         	args=args, 
+	         	rvargs=rvargs, 
 	         	cts=cts,
 	         	makeReturns=makeReturns)
 	     	},
@@ -615,7 +615,7 @@ rSignature <- function(range, x, y=NULL, type="naive", cor = FALSE, args = list(
 	     	 y=y,
 	     	 type=type, 
 	     	 cor=cor, 
-	     	 args=args, 
+	     	 rvargs=rvargs, 
 	     	 cts=cts,
 	     	 makeReturns=makeReturns)
              if(class(ans)!="numeric")
@@ -1010,7 +1010,11 @@ getReturns <- function(x)
 
 
 
-
+timeDate <- function(x, format)
+{
+   warning("This function is for SPLUS and does not work")
+   x
+}
 
 
 

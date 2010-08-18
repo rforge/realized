@@ -1,9 +1,9 @@
 Package: realized
 Version: 1.0
-Date: 2010-08-18
+Date: 2010-08-04
 Title: Realized
 Author: Scott Payseur <scott.payseur@gmail.com>
 Maintainer: Scott Payseur <scott.payseur@gmail.com>
 Description: Realized Variance Toolkit
-License: GPL
+License: GPL (>= 2)
 Depends: R (>= 1.8.0)
