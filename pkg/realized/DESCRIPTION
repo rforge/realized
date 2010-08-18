@@ -1,11 +1,9 @@
 Package: realized
-Version: 0.8
-Date: 2007-11-07
+Version: 1.0
+Date: 2010-08-18
 Title: Realized
-Author: Scott Payseur <spayseur@u.washington.edu>
-Maintainer: Scott Payseur <spayseur@u.washington.edu>
+Author: Scott Payseur <scott.payseur@gmail.com>
+Maintainer: Scott Payseur <scott.payseur@gmail.com>
 Description: Realized Variance Toolkit
-License: file LICENSE
+License: GPL
 Depends: R (>= 1.8.0)
-URL: http://students.washington.edu/spayseur/realized
-Built: S-PLUS; ?; 2007-12-6 21:12:50 UTC; MSWin32; 
