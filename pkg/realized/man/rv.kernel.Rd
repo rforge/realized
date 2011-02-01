@@ -1,24 +1,27 @@
 \name{rv.kernel}
 \alias{rv.kernel}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Realized Variance: Kernel }
+\alias{rc.kernel}
+
+\title{ Realized (co)variance: Kernel }
+
 \description{
-Realized variance calculation using a kernel estimator. 
+Realized variance and covariance calculation using a kernel estimator. 
 }
+
+
 \usage{
-rv.kernel(x, q, align.period = 1, adj = TRUE, type = 0, cts = TRUE, makeReturns = FALSE,rvargs=list(),...)
+rv.kernel(x, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = TRUE, align.by="seconds",align.period = 1,align.period = 1, cts = TRUE, makeReturns = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-   \item{x}{  RealizedObject or TimeSeries for S+}
-  \item{q}{Number of lags}
-  \item{align.period}{ Align the returns to this period first}
-  \item{cts}{ Create calendar time sampling if a non realizedObject is passed}
-  \item{makeReturns}{ Prices are passed make them into log returns}
-  \item{adj}{T to use dof adjustment}
-  \item{type}{0-11 or a character string}
- \item{rvargs}{.}
-    \item{...}{ ...}
+  \item{x}{Tick data in xts object.}
+  \item{kernel.type}{Kernel name (or number)}
+  \item{kernel.param}{Kernel parameter (usually lags)}
+  \item{kernel.dofadj}{Kernel Degree of freedom adjustment}
+  \item{align.by}{Align the tick data to seconds|minutes|hours}
+  \item{align.period}{Align the tick data to this many [seconds|minutes|hours]}
+  \item{cts}{Calendar Time Sampling is used}
+  \item{makeReturns}{Convert to Returns}
 }
 
 \details{
