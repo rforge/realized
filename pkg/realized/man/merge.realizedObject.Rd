@@ -6,7 +6,7 @@
   Merges realizedObjects, see users manual.
 }
 \usage{
-merge.realizedObject(x, y = NULL, ...)
+\method{merge}{realizedObject}(x, y = NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

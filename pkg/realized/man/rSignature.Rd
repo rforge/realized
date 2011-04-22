@@ -6,21 +6,24 @@
 Creates realized variance, covariance, and correlation plots for one or multiple days for each type of estimator.
 }
 \usage{
-rSignature(range, x, y = NULL, type = "naive", cor = FALSE, rvargs = list(), xscale = 1, iteration.funct = "", iterations = NULL, plotit = FALSE, cts = TRUE, makeReturns = FALSE)
+rSignature(range, x, y=NULL, type="naive", cor = FALSE, rvargs = list(), align.by="seconds", align.period =1,xscale=1,  plotit=FALSE, cts=TRUE, makeReturns=FALSE, iteration.funct=NULL, iterations=NULL, lags=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{ 
   \item{range}{  x axis of signature plot (inputs for realized estimator)}
- \item{x}{  RealizedObject or TimeSeries for S+}
-  \item{y}{  RealizedObject or TimeSeries for S+}
+  \item{x}{Tick data in xts object.}
+   \item{y}{Tick data in xts object.}
+    \item{align.by}{Align the tick data to seconds|minutes|hours}
+    \item{align.period}{Align the tick data to this many [seconds|minutes|hours]}
   \item{cts}{ Create calendar time sampling if a non realizedObject is passed}
   \item{makeReturns}{ Prices are passed make them into log returns}
   \item{type}{ Type of realized estimator to use, a rv. or rc. is appended to this value and that function is called }
   \item{cor}{ T for correlation }
   \item{rvargs}{ List of extra parameters to pass into rv.* or rc.* }
   \item{xscale}{ value to multiply range by for x axis (see below) }
-  \item{iteration.funct}{ Name of function to be used for average signature plot }
-  \item{iterations}{ Numeric vector to pass into iteration.funct }
+  \item{iteration.funct}{Deprecated }
+  \item{iterations}{ Deprecated }
+  \item{lags}{Deprecated}
   \item{plotit}{ T for plot }
 }
 \details{
@@ -51,20 +54,17 @@ of Washington}, 2007
 
 \seealso{ \code{\link{rRealizedVariance}} }
 \examples{
-data(msft.real.cts)
-data(ge.real.cts)
-
-# see users manual for more examples
-
-test.cov <- rSignature(1:1200,x=msft.real.cts[[1]], y=ge.real.cts[[1]], xscale=1/60) 
-test.rect <- rSignature(1:600,msft.real.cts[[1]], ge.real.cts[[1]],type="kernel",rvargs=list(type="rectangular"), xscale=1/30)
-test.mth <- rSignature(1:600,msft.real.cts[[1]], ge.real.cts[[1]],type="kernel",rvargs=list(type="mth"), xscale=1/30)
-plot(test.cov, ylab="Realized Covariance", xlab="Minutes", main="GE | MSFT") 
-lines(test.rect, col=3, lwd=1) 
-lines(test.mth, col=4, lwd=2) 
-axis(3, c(0,(1:5)*4), c("Lags:",as.character((1:5)*120)))
-legend(13,.00015,c("Rectangular", "Mod TH"), lwd=c(1,2), col=c(3,4)) 
-
+data(sbux.xts)
+data(lltc.xts)
+ 
+ test.cov <- rSignature((0:119)*10+1,x=sbux.xts, y=lltc.xts, xscale=1/60) 
+ test.rect <- rSignature((1:60)*10+1,x=sbux.xts, y=lltc.xts,type="kernel",rvargs=list(kernel.type="rectangular"), xscale=1/30)
+ test.mth <- rSignature((1:60)*10+1,x=sbux.xts, y=lltc.xts,type="kernel",rvargs=list(kernel.type="mth"), xscale=1/30)
+ plot(test.cov, ylab="Realized Covariance", xlab="Minutes", main="SBUX | LLTC") 
+ lines(test.rect, col=3, lwd=1) 
+ lines(test.mth, col=4, lwd=2) 
+ axis(3, c(0,(1:5)*4), c("Lags:",as.character((1:5)*120)))
+ legend("bottomright",c("Rectangular", "Mod TH"), lwd=c(1,2), col=c(3,4)) 
 }
 
 

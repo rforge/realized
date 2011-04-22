@@ -1,18 +1,19 @@
 \name{rMarginal}
 \alias{rMarginal}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{ Maginal Contribution to Realized Estimate }
 \description{
 Plots the marginal contribution to the realized estimate. 
 }
 \usage{
-rMarginal(x, y = NULL, period, align.period = 1, plotit = FALSE, cts = TRUE,makeReturns = TRUE)
+rMarginal(x, y = NULL, period,align.by="seconds", align.period = 1, plotit = FALSE, cts = TRUE,makeReturns = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
  \item{x}{  RealizedObject or TimeSeries for S+}
   \item{y}{  RealizedObject or TimeSeries for S+}
   \item{period}{ Sampling period }
+  \item{align.by}{Align the tick data to seconds|minutes|hours}
   \item{align.period}{ Align the returns to this period first}
   \item{plotit}{ T for plot }
   \item{cts}{ Create calendar time sampling if a non realizedObject is passed}
@@ -28,18 +29,13 @@ Marginal contribution vector if plotit = F
 S. W. Payseur.  A One Day Comparison of Realized Variance and Covariance Estimators. \emph{Working Paper: University 
 of Washington}, 2007
 }
-\author{ Scott Payseur <spayseur@u.washington.edu>}
+\author{ Scott Payseur <scott.payseur@gmail.com}
 \seealso{ \code{\link{rAccumulation}}, \code{\link{rRealizedVariance}} }
 
 \examples{
-data(msft.real.cts)
-data(dates.example)
-
+data(sbux.xts)
 par(mfrow=c(2,1))
-plot(rCumSum(msft.real.cts[[1]], period=10, align.period=60), xlab="", ylab="Cumulative Ruturns", main="MSFT", sub=dates.example[[1]], type="p")
-barplot(rMarginal(msft.real.cts[[1]], period=10, align.period=60)$y, main="Marginal Contribution Plot") 
-
-
-
+plot(rCumSum(sbux.xts, period=10, align.by="seconds", align.period=60), xlab="", ylab="Cumulative Ruturns", main="Starbucks (SBUX)", sub='20110701', type="p")
+barplot(rMarginal(sbux.xts, period=10, align.by="seconds", align.period=60)$y, main="Marginal Contribution Plot") 
 }
 \keyword{methods}

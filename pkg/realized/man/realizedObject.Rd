@@ -6,7 +6,7 @@
 Creates an object of type realizedObject to be passed to most of the functions from the realized library
 }
 \usage{
-realizedObject(x, cts = TRUE, makeReturns = FALSE, millisstart = 34200000, millisend = 57600000)
+realizedObject(x, cts = TRUE, makeReturns = FALSE, millisstart = NA, millisend = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,7 +22,7 @@ See user's manual.
 \value{
 Object of type realizedObject
 }
-\author{ Scott Payseur <spayseur@u.washington.edu> }
+\author{ Scott Payseur <scott.payseur@gmail.com> }
 \examples{
 # see users manual
 

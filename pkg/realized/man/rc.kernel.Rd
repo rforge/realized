@@ -1,24 +1,31 @@
 \name{rc.kernel}
 \alias{rc.kernel}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Realized Covariance: Kernel  }
+
+\title{ Realized Covariance: Kernel}
+
 \description{
- Realized covariance calculation using a kernel estimator. 
+Realized covariance calculation using a kernel estimator. 
 }
+
+
 \usage{
-rc.kernel(x, y, q, align.period = 1, adj = TRUE, type = 0, cts = TRUE, makeReturns = FALSE,  ...)
+rc.kernel(x, y, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = TRUE, align.by="seconds",align.period = 1, cts = TRUE, makeReturns = FALSE, type = NULL, adj = NULL, q = NULL,...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{x}{  RealizedObject or TimeSeries for S+}
-  \item{y}{  RealizedObject or TimeSeries for S+}
-  \item{q}{Number of lags}
-  \item{align.period}{ Align the returns to this period first}
-  \item{cts}{ Create calendar time sampling if a non realizedObject is passed}
-  \item{makeReturns}{ Prices are passed make them into log returns}
-  \item{adj}{T to use dof adjustment}
-  \item{type}{0-11 or a character string}
-    \item{...}{ ...}
+  \item{x}{Tick data in xts object.}
+  \item{y}{Second asset tick data in xts object.}  
+  \item{kernel.type}{Kernel name (or number)}
+  \item{kernel.param}{Kernel parameter (usually lags)}
+  \item{kernel.dofadj}{Kernel Degree of freedom adjustment}
+  \item{align.by}{Align the tick data to seconds|minutes|hours}
+  \item{align.period}{Align the tick data to this many [seconds|minutes|hours]}
+  \item{cts}{Calendar Time Sampling is used}
+  \item{makeReturns}{Convert to Returns}
+  \item{type}{Deprecated, use kernel.type}
+  \item{adj}{Deprecated, use kernel.dofadj}
+  \item{q}{Deprecated, use kernel.param}
+  \item{...}{...}
 }
 
 \details{
@@ -30,22 +37,26 @@ Kernel estimate of realized covariance.
 \references{
 Ole E. Barndorff-Nielsen, Peter Reinhard Hansen, Asger Lunde, and Neil Shephard. Regular and modified kernel-based estimators of integrated variance: The case with independent noise. \emph{Working Paper}, 2004.
 
-Michiel de Pooter, Martin Martens, and Dick van Dijk. Predicting the daily covariance matrix for sp100
-stocks using intraday data - but which frequency to use? \emph{Working Paper}, October 2005.
+B. Zhou. High-frequency data and volatility in foreign-exchange rates. \emph{Journal of Buiness & Economic
+Statistics}, 14:45-52, 1996.
 
-J. E. Griffen and R. C. A. Oomen. Covariance measurement in the presence of non-synchronous trading and
-market microstructure noise. \emph{Working Paper}, June 27th, 2006.
+P. Hansen and A. Lunde. Realized variance and market microstructure noise. \emph{Journal of Business and
+Economic Statistics}, 24:127-218, 2006.
 }
-\author{Scott Payseur <spayseur@u.washington.edu>}
+\author{Scott Payseur <scott.payseur@gmail.com>}
 
-\seealso{\code{\link{rRealizedVariance}},\code{\link{rv.kernel}}, \code{\link{rKernel.available}},\code{\link{rKernel}}}
+\seealso{\code{\link{rRealizedVariance}},\code{\link{rc.kernel}}, \code{\link{rKernel.available}},\code{\link{rKernel}}}
 \examples{
 
-data(msft.real.cts)
-data(ge.real.cts)
+#data(msft.real.cts)
+#data(ge.real.cts)
 
-# kernel realized covariance for CTS aligned at one minute returns
-#
-rc.kernel(x = msft.real.cts[[1]], y = ge.real.cts[[1]], q=1, type="bartlett", align.period=60)
+# kernel realized variance for CTS aligned at one minute returns
+data(sbux.xts)
+data(lltc.xts)
+
+# kernel realized variance for CTS aligned at one minute returns
+rc.kernel(x = sbux.xts,y = lltc.xts, kernel.param=1, kernel.type="bartlett", align.by ="seconds", align.period=60)
+
 }
 \keyword{methods}

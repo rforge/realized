@@ -5,16 +5,17 @@
   Traditional realized variance estimator.
 }
 \usage{
-rv.naive(x, period, align.period = 1, cts = TRUE, makeReturns = FALSE, ...)
+rv.naive(x, period, align.by = "seconds", align.period = 1, cts = TRUE, makeReturns = FALSE, ...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-    \item{x}{  RealizedObject or TimeSeries for S+}
+  \item{x}{Tick data in xts object.}
   \item{period}{ Sampling period }
-  \item{align.period}{ Align the returns to this period first}
-  \item{cts}{ Create calendar time sampling if a non realizedObject is passed}
-  \item{makeReturns}{ Prices are passed make them into log returns}
-    \item{...}{ ...}
+  \item{align.by}{Align the tick data to seconds|minutes|hours}
+  \item{align.period}{Align the tick data to this many [seconds|minutes|hours]}
+  \item{cts}{Calendar Time Sampling is used}
+  \item{makeReturns}{Convert to Returns}
+  \item{...}{...}
   }
 
 \value{
@@ -29,18 +30,16 @@ T.G. Andersen, T. Bollerslev, F.X. Diebold, and P. Labys. The distribution of ex
 \emph{Journal of the American Statistical Association}, 96:42-55, 2001.
 
 }
-\author{Scott Payseur <spayseur@u.washington.edu> }
+\author{Scott Payseur <scott.payseur@gmail.com> }
 
 \seealso{\code{\link{rc.naive}}, \code{\link{rSignature}}, \code{\link{rRealizedVariance}}}
 \examples{
-
-
-data(msft.real.cts)
-data(ge.real.cts)
+#rv.naive
+data(sbux.xts)
 
 # Traditional RV aligned to 60 seconds
 #
-rv.naive(x = msft.real.cts[[1]], period = 60)
+rv.naive(x = sbux.xts, period = 60, align.by ="seconds", align.period=1)
 
 }
 \keyword{methods}

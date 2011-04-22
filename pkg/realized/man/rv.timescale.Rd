@@ -6,13 +6,14 @@
 Realized variance using the two timescale variance method.
 }
 \usage{
-rv.timescale(x, period, align.period = 1, adj.type = "classic", cts = TRUE, makeReturns = FALSE, ...)
+rv.timescale(x, period, align.by="seconds", align.period = 1, adj.type = "classic", cts = TRUE, makeReturns = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
- \item{x}{  RealizedObject or TimeSeries for S+}
+ \item{x}{Tick data in xts object.}
   \item{period}{ Sampling period }
-  \item{align.period}{ Align the returns to this period first}
+  \item{align.by}{Align the tick data to seconds|minutes|hours}
+  \item{align.period}{Align the tick data to this many [seconds|minutes|hours]}
   \item{cts}{ Create calendar time sampling if a non realizedObject is passed}
   \item{makeReturns}{ Prices are passed make them into log returns}
   \item{adj.type}{"classic", "adj" or "aa"}
@@ -34,10 +35,8 @@ L. Zhang, P.A Mykland, and Y. Ait-Sahalia. A tale of two time scales: Determinin
 \author{ Scott Payseur <spayseur@u.washington.edu> }
 \seealso{\code{\link{rc.timescale}}, \code{\link{rRealizedVariance}} }
 \examples{
-
-data(msft.real.cts)
-
-rv.timescale(x = msft.real.cts[[1]], period = 60, adj.type="aa")
+data(sbux.xts)
+rv.timescale(x = sbux.xts, period = 60,align.by ="seconds", align.period=1, adj.type="aa")
 
 }
 \keyword{methods}
