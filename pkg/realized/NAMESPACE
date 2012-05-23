@@ -1,35 +1,24 @@
-useDynLib(realized, .registration = TRUE);
-#export(anova.trls, anovalist.trls, correlogram, expcov, gaucov, Kaver,
-#       Kenvl, Kfn, plot.trls, ppgetregion, ppinit, pplik, ppregion,
-#       predict.trls, prmat, Psim, semat, sphercov, SSI, Strauss,
-#       surf.gls, surf.ls, trls.influence, trmat, variogram)
+useDynLib(realized)
+import(zoo)
+import(xts)
 
-export(
-merge.realizedObject,  
-rAccumulation,	
-rc.avg,	
-rc.hy,	
-rc.kernel,	
-rc.naive,	
-rc.timescale,	
-rc.zero,	
-rCumSum,	
-realized,	
-realizedObject,	
-rKernel,	
-rKernel.available,	
-rMarginal,	
-rRealisedVariance,	
-rRealizedVariance,	
-rScatterReturns,	
-rSignature,	
-rv.avg,	
-rv.kernel,	
-rv.naive,	
-rv.timescale,	
-rv.zero)
-
-#importFrom(mvtnorm, dmvnorm);
-#importFrom(cubature, adaptIntegrate);
-
-#S3method(summary,trls)
+export(rAccumulation,
+       rCumSum,
+       rKernel,
+       rKernel.available,
+       rMarginal,
+       rRealisedVariance,
+       rRealizedVariance,
+       rScatterReturns,
+       rSignature,
+       rc.avg,
+       rc.hy,
+       rc.kernel,
+       rc.naive,
+       rc.timescale,
+       rc.zero,
+       rv.avg,
+       rv.kernel,
+       rv.naive,
+       rv.timescale,
+       rv.zero)
