@@ -1,18 +1,22 @@
-.First.lib <- function(libname, pkgname)
+#.First.lib <- function(libname, pkgname)
+#{
+#    library.dynam("realized")
+#    require("xts")
+#    require("zoo")
+#}
+
+.onLoad <- function(libname, pkgname)
 {
-    library.dynam("realized")
-    require("xts")
-    cat("Realized Library:  Realized Variance, Covariance, Correlation Estimation and Tools.\n")
-    cat(" R:  http://cran.r-project.org\n")
-    cat("Copyright (C) 2010  Scott W. Payseur <scott.payseur@gmail.com>\n\n")  
-    cat("Please report any bugs or feature requests to the author.  User's manual\n")
-    cat("in the 'realized' library directory.\n\n\n")
-     
-    if(is.null(version$language)) #SPlus
-    {
-        data <- function(...){}
-    }
+#    require("xts")
+#    require("zoo")
 }
+
+.onAttach <- function(libname, pkgname)
+{
+ #   require("xts")
+  #  require("zoo")
+}
+
 
 
      #########################################################################
@@ -178,12 +182,31 @@
                            align.by="seconds",            # Align the tick data to [seconds|minutes|hours]
                            align.period = 1,              # Align the tick data to this many [seconds|minutes|hours]
                            cts = TRUE,                    # Calendar Time Sampling is used
-                           makeReturns = FALSE){          # Convert to Returns
+                           makeReturns = FALSE,            # Convert to Returns 
+                           type = NULL,                   # Deprectated
+                           adj = NULL,                    # Deprectated
+                           q = NULL, ...){                     # Deprectated
+                           
+          #
+          # Handle deprication
+          #
+          if(!is.null(type)){
+              warning("type is deprecated, use kernel.type")
+              kernel.type=type
+          }
+          if(!is.null(q)){
+	                warning("q is deprecated, use kernel.param")
+	                kernel.param=q
+          }
+          if(!is.null(adj)){
+	                warning("adj is deprecated, use kernel.dofadj")
+	                kernel.dofadj=adj
+          }          
           align.period = .getAlignPeriod(align.period, align.by)         
           cdata <- .convertData(x, cts=cts, makeReturns=makeReturns)
           x <- cdata$data
           x <- .alignReturns(x, align.period)
-          type <- .kernel.chartoint(type)
+          type <- .kernel.chartoint(kernel.type)
           .C("kernelEstimator", as.double(x), as.double(x), as.integer(length(x)),
                      as.integer(kernel.param), as.integer(ifelse(kernel.dofadj, 1, 0)),
                      as.integer(type), ab=double(kernel.param + 1),
@@ -199,18 +222,39 @@
                            align.by="seconds",            # Align the tick data to [seconds|minutes|hours]
                            align.period = 1,              # Align the tick data to this many [seconds|minutes|hours]
                            cts = TRUE,                    # Calendar Time Sampling is used
-                           makeReturns = FALSE){          # Convert to Returns 
+                           makeReturns = FALSE,           # Convert to Returns 
+                           type = NULL,                   # Deprectated
+                           adj = NULL,                    # Deprectated
+                           q = NULL,...){                     # Deprectated
+          #
+          # Handle deprication
+          #
+          if(!is.null(type)){
+              warning("type is deprecated, use kernel.type")
+              kernel.type=type
+          }
+          if(!is.null(q)){
+	                warning("q is deprecated, use kernel.param")
+	                kernel.param=q
+          }
+          if(!is.null(adj)){
+	                warning("adj is deprecated, use kernel.dofadj")
+	                kernel.dofadj=adj
+          }
+          
+          align.period = .getAlignPeriod(align.period, align.by)   
           cdata <- .convertData(x, cts=cts, makeReturns=makeReturns)
+          
           x <- cdata$data
           x <- .alignReturns(x, align.period)
           cdatay <- .convertData(y, cts=cts, makeReturns=makeReturns)
           y <- cdatay$data
           y <- .alignReturns(y, align.period)
-          type <- .kernel.chartoint(type)
+          type <- .kernel.chartoint(kernel.type)
           .C("kernelEstimator", as.double(x), as.double(y), as.integer(length(x)),
-                     as.integer(q), as.integer(ifelse(adj, 1, 0)),
-                     as.integer(type), ab=double(q + 1),
-                     ab2=double(q + 1),
+                     as.integer(kernel.param), as.integer(ifelse(kernel.dofadj, 1, 0)),
+                     as.integer(type), ab=double(kernel.param + 1),
+                     ab2=double(kernel.param + 1),
                      ans=double(1),PACKAGE="realized")$ans
      }
 
@@ -265,9 +309,9 @@
                     PACKAGE="realized")$ans               
      }
 
-     rv.timescale <- function(x, period, align.period=1,adj.type="classic", cts=TRUE, makeReturns=FALSE, ...)
+     rv.timescale <- function(x, period, align.by="seconds", align.period=1,adj.type="classic", cts=TRUE, makeReturns=FALSE, ...)
      {
-
+          align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
 
           n <- dim(as.matrix(x))[[1]]
@@ -276,25 +320,28 @@
           adj * (mean(rv.avg(x, period)) - ((nbar/n) * rv.naive(x,1)))
      }
 
-     rc.timescale <- function(x,y, period,align.period=1, adj.type="classic", cts=TRUE, makeReturns=FALSE,...)
+     rc.timescale <- function(x,y, period, align.by="seconds", align.period=1, adj.type="classic", cts=TRUE, makeReturns=FALSE,...)
      {
+          align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           y<- .alignReturns(.convertData(y, cts=cts, makeReturns=makeReturns)$data, align.period)
 
           n <- dim(as.matrix(x))[[1]]
           nbar <- (n-period+1)/(period)
           adj <- switch(adj.type, classic=1, adj=(1-(nbar/n))^-1, aa= n/((period-1)*nbar))
-         adj * (mean(rc.avg(x,y, period)) - ((nbar/n) * rc.naive(x,y,1)))
+          adj * (mean(rc.avg(x,y, period)) - ((nbar/n) * rc.naive(x,y,1)))
      }
 
-     rv.avg <- function(x, period, align.period=1, cts=TRUE, makeReturns=FALSE, ...)
+     rv.avg <- function(x, period, align.by="seconds", align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
+          align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           mean(.rv.subsample(x, period, ...))
      }
 
-     rc.avg <- function(x, y,  period, align.period=1, cts=TRUE, makeReturns=FALSE, ...)
+     rc.avg <- function(x, y,  period, align.by="seconds", align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
+          align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           y<- .alignReturns(.convertData(y, cts=cts, makeReturns=makeReturns)$data, align.period)
           mean(.rc.subsample(x, y, period))
@@ -306,8 +353,10 @@
      # See ABDL, BNS, etc 
      #
      #########################################################################
-     rv.naive <- function(x, period, align.period=1, cts=TRUE, makeReturns=FALSE, ...)
+     rv.naive <- function(x, period, align.by = "seconds",align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
+     
+          align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           .C("rv", 
                     as.double(x), #a
@@ -322,8 +371,9 @@
                     PACKAGE="realized")$ans     
      }
 
-     rc.naive <- function(x, y,  period, align.period=1, cts=TRUE, makeReturns=FALSE, ...)
+     rc.naive <- function(x, y,  period,align.by = "seconds", align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
+          align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           y<- .alignReturns(.convertData(y, cts=cts, makeReturns=makeReturns)$data, align.period)
 
@@ -358,20 +408,25 @@
      }
 
 
-     rRealizedVariance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, rvargs = list(), cts=TRUE, makeReturns=FALSE)
+     rRealizedVariance <- function(x, y=NULL, type="naive", period = 1, align.by="seconds", align.period = 1, cor = FALSE, rvargs = list(), cts=TRUE, makeReturns=FALSE, lags=NULL)
      {
-          if(!is.null(rvargs$align.period))
-          {
-              align.period =rvargs$align.period
-          }
-          else
-          {
-              align.period = 1
-          }
-
-     #     x<- .alignReturns(.convertData(x, cts)$data, align.period)
-     #     y<- .alignReturns(.convertData(y, cts)$data, align.period)
-          if((n <- .getDataColNum(x)) > 1)
+          
+         if(!is.null(lags)){
+             warning("lags is deprecated, use the appropriate rv.* or rc.* paramter name in rvargs")
+             rvargs$kernel.param = lags
+         }   
+         # Hack 
+         if(length(which(names(rvargs)=="align.period")) > 0){
+             warning("align.period in rvargs is deprecated, use as parameter")
+             align.period=rvargs$align.period
+             rvargs[which(names(rvargs)=="align.period") ] = NULL
+             if(length(rvargs)==0)
+                rvargs = list(bs=1)
+             
+         }
+         
+         
+         if((n <- .getDataColNum(x)) > 1)
           {
 
                ans <- matrix(NA, nrow=n, ncol=n)
@@ -387,14 +442,14 @@
                          }
                          else
                          {
-                              ans[i,j] <- .realized.variance(x=.getDataCol(x,j), y=NULL, type=type, period=period, lags=lags, rvargs=rvargs, cts=cts, makeReturns=makeReturns)
+                              ans[i,j] <- .realized.variance(x=.getDataCol(x,j), y=NULL, type=type, period=period, align.by=align.by,align.period=align.period, rvargs=rvargs, cts=cts, makeReturns=makeReturns)
                          }
                     }
                     else
                     {
                         if(j > i)
                         {
-                         ans[i,j] <- .realized.variance(x=.getDataCol(x,i), y=.getDataCol(x,j), type=type, period=period, lags=lags, rvargs=rvargs, cor=cor, cts=cts, makeReturns=makeReturns)
+                         ans[i,j] <- .realized.variance(x=.getDataCol(x,i), y=.getDataCol(x,j), type=type, period=period,align.by=align.by,align.period=align.period, rvargs=rvargs, cor=cor, cts=cts, makeReturns=makeReturns)
                          ans[j,i]<-ans[i,j]
                         }     
                     }
@@ -404,32 +459,34 @@
           }
           else
           {
-               ans <- .realized.variance(x=x, y=y, type=type, period = period, lags = lags, cor = cor, rvargs = rvargs, cts=cts, makeReturns=makeReturns)
+               ans <- .realized.variance(x=x, y=y, type=type, period = period, align.by=align.by, align.period=align.period, cor = cor, rvargs = rvargs, cts=cts, makeReturns=makeReturns)
           }
-     #     class(ans) <- "rRealized.variance"
           ans
      }
 
 
 
-     .realized.variance <- function(x, y=NULL, type="naive", period = 1, lags = 1, cor = FALSE, rvargs = list(), cts=TRUE,makeReturns=FALSE)
+     .realized.variance <- function(x, y=NULL, type="naive", period = 1, align.by="seconds", align.period = 1, cor = FALSE, rvargs = list(), cts=TRUE,makeReturns=FALSE)
      {   
+     
           if(cor)
           {
-               rvx <- do.call(paste("rv.", type, sep=""), c(rvargs=rvargs,list(x=x, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
-               rvy <- do.call(paste("rv.", type, sep=""), c(rvargs=rvargs,list(x=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
-               rcxy <- do.call(paste("rc.", type, sep=""),c(rvargs=rvargs,list(x=x, y=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))
+               rvx <- do.call(paste("rv.", type, sep=""), c(rvargs,list(x=x, period=period, align.by=align.by, align.period=align.period, cts=cts, makeReturns=makeReturns)))
+               rvy <- do.call(paste("rv.", type, sep=""), c(rvargs,list(x=y, period=period, align.by=align.by, align.period=align.period, cts=cts, makeReturns=makeReturns)))
+               rcxy <- do.call(paste("rc.", type, sep=""),c(rvargs,list(x=x, y=y, period=period, align.by=align.by, align.period=align.period, cts=cts, makeReturns=makeReturns)))
                rcxy/(sqrt(rvx)*sqrt(rvy))
           }
           else
           {
                funct <- paste(ifelse(is.null(y), "rv.", "rc."), type, sep="")
-               do.call(funct, c(rvargs=rvargs, list(x=x, y=y, q=lags, k=lags, period=period, cts=cts, makeReturns=makeReturns)))     
+               
+               do.call(funct, c(rvargs, list(x=x, y=y, period=period, align.by=align.by, align.period=align.period, cts=cts, makeReturns=makeReturns)))     
           }
      }
 
-     rc.zero <- function(x, y, period, align.period=1, cts=TRUE, makeReturns=FALSE, ...)
+     rc.zero <- function(x, y, period, align.by="seconds", align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
+          align.period = .getAlignPeriod(align.period, align.by)
           y<- .alignReturns(.convertData(y, cts=cts, makeReturns=makeReturns)$data, align.period)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           acy <- .accum.naive(x=y,y=y,period=period)
@@ -437,19 +494,22 @@
          sum((acx*acy)==0)/length(acy)
      }
 
-     rv.zero <- function(x, period, align.period=1, cts=TRUE, makeReturns=FALSE, ...)
+     rv.zero <- function(x, period, align.by="seconds",align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
+          align.period = .getAlignPeriod(align.period, align.by)   
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           ac <- .accum.naive(x=x,y=x,period=period)
-         sum((ac*ac)==0)/length(ac)
+          sum((ac*ac)==0)/length(ac)
      }
 
 
 
-     rCumSum <- function(x, period = 1, align.period=1, plotit=FALSE, type='l', cts = TRUE, makeReturns=FALSE)
-     {
 
-          ans <- list(x = NULL, y = NULL)
+
+     rCumSum <- function(x, period = 1, align.by="seconds", align.period=1, plotit=FALSE, type='l', cts = TRUE, makeReturns=FALSE)
+     {
+         align.period = .getAlignPeriod(align.period, align.by)   
+         ans <- list(x = NULL, y = NULL)
          ans$x <- .alignIndices(1:length(.convertData(x, cts=cts, makeReturns=makeReturns)$data), align.period)
          ans$x <- .alignIndices(ans$x, period)
 
@@ -465,13 +525,14 @@
           ans
      }
 
-     rScatterReturns <- function(x,y, period, align.period=1,numbers=FALSE,xlim= NULL, ylim=NULL, plotit=TRUE, pch=NULL, cts=TRUE, makeReturns=FALSE, scale.size=0, col.change=FALSE,...)
-     {
 
+     rScatterReturns <- function(x,y, period, align.by="seconds", align.period=1,numbers=FALSE,xlim= NULL, ylim=NULL, plotit=TRUE, pch=NULL, cts=TRUE, makeReturns=FALSE, scale.size=0, col.change=FALSE,...)
+     {
+          align.period = .getAlignPeriod(align.period, align.by) 
           y<- .alignReturns(.convertData(y, cts=cts, makeReturns=makeReturns)$data, align.period)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
 
-             x<-.accum.naive(x, x, period)
+          x<-.accum.naive(x, x, period)
           y<-.accum.naive(y, y, period)
           if(is.null(pch))
               pch=1
@@ -535,8 +596,9 @@
 
 
 
-     rc.hy <- function(x,y, period=1, align.period =1, cts = TRUE, makeReturns=FALSE, ...)
+     rc.hy <- function(x,y, period=1,align.by="seconds", align.period =1, cts = TRUE, makeReturns=FALSE, ...)
      {
+          align.period = .getAlignPeriod(align.period, align.by)
           cdata <- .convertData(x, cts=cts, makeReturns=makeReturns)
           x <- cdata$data
           x.t <- cdata$milliseconds
@@ -577,71 +639,50 @@
      #
      # Signature Plot
      #
-     rSignature <- function(range, x, y=NULL, type="naive", cor = FALSE, rvargs = list(), xscale=1, iteration.funct="", iterations=NULL, plotit=FALSE, cts=TRUE, makeReturns=FALSE)
+     rSignature <- function(range, x, y=NULL, type="naive", cor = FALSE, rvargs = list(), align.by="seconds", align.period =1,xscale=1,  plotit=FALSE, cts=TRUE, makeReturns=FALSE, iteration.funct=NULL, iterations=NULL, lags=NULL)
      {
 
+        if(!is.null(iteration.funct) || !is.null(iterations))
+            stop("iterations no longer work, please call this function mutliple times and average the result.")
 
-          if(is.null(iterations))
-          {
-               x <- .convertData(x, cts=cts, makeReturns=makeReturns)$data
-                  y <- .convertData(y, cts=cts, makeReturns=makeReturns)$data
-          ans <- list(x=range*xscale, 
-                y=sapply(range, function(r, x, y, type, period, lags, cor, rvargs){.realized.variance(x=x, y=y, type=type, period = r, lags = r, cor = cor, rvargs = rvargs)},x=x,y=y,type=type, cor=cor, rvargs=rvargs),
-                xgrid=range,
-                type = type,
-                cor = cor,
-                cov = is.null(y),
-                cts= cts)     
-          }
-          else
-          {
-               ans <- sapply(1:length(iterations), 
-               function(i,iterations, iteration.funct,range, x, y, type, period, lags, cor, rvargs, cts, makeReturns)
-               {
-                    if(!is.null(y))
-                    {
-                    y.new <- do.call(iteration.funct, args=list(x=y, i=iterations[i], rvargs=rvargs))
-                    }
-                    else
-                    {
-                    y.new <- NULL
-                    }
-                    sapply(range, 
-                         function(r, x, y, type, period, lags, cor, rvargs, cts, makeReturns)
-                         {
-                         .realized.variance(x=x, y=y, type=type, period = r, lags = r, cor = cor, rvargs = rvargs)
-                         },
-                    x=do.call(iteration.funct, args=list(x=x, i=iterations[i], rvargs=rvargs)), 
-                    y=y.new,
-                    type=type, 
-                    cor=cor, 
-                    rvargs=rvargs, 
-                    cts=cts,
-                    makeReturns=makeReturns)
-               },
-                iterations=iterations, 
-                range=range, 
-                iteration.funct=iteration.funct,
-                x=x,
-                y=y,
-                type=type, 
-                cor=cor, 
-                rvargs=rvargs, 
-                cts=cts,
-                makeReturns=makeReturns)
-               if(class(ans)!="numeric")
-               {
-               ans <- apply(ans,1,mean)
-               }
-          ans <- list(x=range*xscale, 
-                y=ans,
-                xgrid=range,
-                type = type,
-                cor = cor,
-                cov = is.null(y))     
-
+        if(!is.null(lags)){
+             warning("lags is deprecated, use the appropriate rv.* or rc.* paramter name in rvargs")
+             rvargs$kernel.param = lags
+         }   
+         # Hack 
+         if(length(which(names(rvargs)=="align.period")) > 0){
+             warning("align.period in rvargs is deprecated, use as parameter")
+             align.period=rvargs$align.period
+             rvargs[which(names(rvargs)=="align.period") ] = NULL
+             if(length(rvargs)==0)
+                rvargs = list(bs=1)
+             
          }
-         #class(ans) <- "rSignature"
+               
+               if(type=="kernel"){
+               kernfun <- function(r, x, y, type, cor, rvargs){
+                   rvargs$kernel.param = r
+                   .realized.variance(x=x, y=y, type=type, cor = cor, rvargs = rvargs)
+               }
+                   ans <- list(x=range*xscale, 
+                          y=sapply(range, kernfun,x=x,y=y,type=type, cor=cor, rvargs=rvargs),
+                          xgrid=range,
+                          type = type,
+                          cor = cor,
+                          cov = is.null(y),
+                          cts= cts)
+               }
+               else{
+                   ans <- list(x=range*xscale, 
+		                             y=sapply(range, function(r, x, y, type, period, align.by, align.period, cor, rvargs){.realized.variance(x=x, y=y, type=type, period = r, cor = cor, rvargs = rvargs, align.by=align.by, align.period=align.period)},x=x,y=y,type=type, cor=cor, rvargs=rvargs, align.period=align.period, align.by=align.by),
+		                             xgrid=range,
+		                             type = type,
+		                             cor = cor,
+		                             cov = is.null(y),
+		                             cts= cts)
+               }
+               
+      
          if(plotit)
          {
           .rSignature.plot(ans)
@@ -672,6 +713,11 @@
      #
      .getDataColNum <- function(x)
      {
+
+          if("xts" %in% class(x))
+         {
+          return(dim(x)[[2]])     
+         }
 
           if("realizedObject" %in% class(x))
          {
@@ -724,7 +770,11 @@
                return(NULL)
           }
 
-
+         
+	 if("xts" %in% class(x))
+	 {
+	           return(x[,i])     
+         } 
          if("realizedObject" %in% class(x))
          {
           return(x[,i])     
@@ -768,9 +818,10 @@
          }
      }
 
-     rMarginal <- function(x, y=NULL, period, align.period=1, plotit=FALSE, cts=TRUE, makeReturns=TRUE)
+     rMarginal <- function(x, y=NULL, period, align.by="seconds", align.period=1, plotit=FALSE, cts=TRUE, makeReturns=FALSE)
      {
-          ans <- list(x = NULL, y = NULL)
+         align.period = .getAlignPeriod(align.period, align.by)   
+         ans <- list(x = NULL, y = NULL)
          ans$x <- .alignIndices(1:length(x), align.period)
          ans$x <- .alignIndices(ans$x, period)
 
@@ -791,8 +842,9 @@
          ans
      }
 
-     rAccumulation <- function(x, period=1, y=NULL, align.period=1, plotit=FALSE, cts=TRUE, makeReturns=FALSE)
+     rAccumulation <- function(x, period=1, y=NULL, align.by="seconds",align.period=1, plotit=FALSE, cts=TRUE, makeReturns=FALSE)
      {
+         align.period = .getAlignPeriod(align.period, align.by)   
          ans <- list(x=NULL, y=NULL)
          ans$y <- cumsum(rMarginal(x=x, y=y, period=period, align.period=align.period, cts=cts, makeReturns=makeReturns)$y)
      #    ans$x <- .alignIndices(1:length(x), align.period)
@@ -980,12 +1032,12 @@
            if(sum(names(x) == c("data", "milliseconds")) == 2) 
            {
               if(makeReturns)
-                   {
-                    errcheck <- try(getReturns(.sameTime(x$data, x$milliseconds)))
+                   {                                           # only works on non cts prices
+                    errcheck <- try(.getReturns(.sameTime(x$data, x$milliseconds)))
                     if(class(errcheck) != "Error")
                     {
                          x$data <- errcheck
-                    x$milliseconds <- intersect(x$milliseconds,x$milliseconds)
+                         x$milliseconds <- intersect(x$milliseconds,x$milliseconds)
                     }
                     else
                     {
@@ -1027,8 +1079,9 @@
      }
 
 
-     getReturns <- function(x)
+     .getReturns <- function(x)
      {
+             x <- as.numeric(x)
              n <- length(x)[[1]]
              return(log(x[2:n]) - log(x[1:(n-1)]))
      }
@@ -1036,71 +1089,75 @@
 
 
 
-     timeDate <- function(x, format)
-     {
-        warning("This function is for SPLUS and does not work")
-        x
-     }
+   #  timeDate <- function(x, format)
+   #  {
+   #     warning("This function is for SPLUS and does not work")
+   #     x
+   #  }
 
 
 
-     .ts2millis <- function(x,...)
-     {
-
-          millis <- as.numeric(as.character((timeDate(as.character(x@positions), format="%H")))) * 60 * 60 * 1000 +
-                 as.numeric(as.character((timeDate(as.character(x@positions), format="%M")))) * 60 * 1000 +
-                 as.numeric(as.character((timeDate(as.character(x@positions), format="%S")))) * 1000 +
-                as.numeric(as.character((timeDate(as.character(x@positions), format="%N"))))
-          millis
-     }
+   #  .ts2millis <- function(x,...)
+  #   {
+#
+  #        millis <- as.numeric(as.character((timeDate(as.character(x@positions), format="%H")))) * 60 * 60 * 1000 +
+  #               as.numeric(as.character((timeDate(as.character(x@positions), format="%M")))) * 60 * 1000 +
+  #               as.numeric(as.character((timeDate(as.character(x@positions), format="%S")))) * 1000 +
+  #              as.numeric(as.character((timeDate(as.character(x@positions), format="%N"))))
+  #        millis
+  #   }
 
 
      ts2realized <- function(x, make.returns=TRUE,millisstart=34200000, millisend=57600000)
      {
-          thedata <- data.sameTime(as.numeric(as.matrix(x@data)), .ts2millis(x))
+           warning("SPLUS is no longer supported.")
+     #     thedata <- data.sameTime(as.numeric(as.matrix(x@data)), .ts2millis(x))
 
-         if(make.returns)
-         {
+     #    if(make.returns)
+     #    {
 
-               thedata <- getReturns(thedata)
+     #          thedata <- .getReturns(thedata)
 
-               tts <- list(data=as.numeric(thedata), milliseconds=intersect(.ts2millis(x),.ts2millis(x))[-1])
-               cts <- list(data=.toCts(x=as.numeric(thedata), millis=intersect(.ts2millis(x),.ts2millis(x)), millisstart=millisstart, millisend=millisend),
-                    milliseconds=(((millisstart/1000)+1):(millisend/1000))*1000)
-         }
-         else
-         {
-               tts <- list(data=as.numeric(thedata), milliseconds=intersect(.ts2millis(x),.ts2millis(x)))
-               cts <- list(data=.toCts(x=as.numeric(thedata), millis=intersect(.ts2millis(x),.ts2millis(x)), millisstart=millisstart, millisend=millisend),
-                    milliseconds=(((millisstart/1000)+1):(millisend/1000))*1000)
+     #          tts <- list(data=as.numeric(thedata), milliseconds=intersect(.ts2millis(x),.ts2millis(x))[-1])
+     #          cts <- list(data=.toCts(x=as.numeric(thedata), millis=intersect(.ts2millis(x),.ts2millis(x)), millisstart=millisstart, millisend=millisend),
+     #               milliseconds=(((millisstart/1000)+1):(millisend/1000))*1000)
+     #    }
+     #    else
+     #    {
+     #          tts <- list(data=as.numeric(thedata), milliseconds=intersect(.ts2millis(x),.ts2millis(x)))
+     #          cts <- list(data=.toCts(x=as.numeric(thedata), millis=intersect(.ts2millis(x),.ts2millis(x)), millisstart=millisstart, millisend=millisend),
+     #               milliseconds=(((millisstart/1000)+1):(millisend/1000))*1000)
 
 
-         }
-          ans <- list(tts=tts, cts=cts)     
-          ans
+     #    }
+     #     ans <- list(tts=tts, cts=cts)     
+     #     ans
      }
 
 
      tsGetDay<-function(ts, dateString)
      {
-          if(is(ts, "timeSeries"))
-               pos = ts@positions
-          else stop("ts must be a timeSeries object")
-          pos@format = "%02m/%02d/%Y"
-          poschar = as.character(pos)
-          inds <- poschar == dateString
-          ts[inds]
+           warning("SPLUS is no longer supported.")
+   
+   #     if(is(ts, "timeSeries"))
+     #          pos = ts@positions
+     #     else stop("ts must be a timeSeries object")
+     #     pos@format = "%02m/%02d/%Y"
+     #     poschar = as.character(pos)
+     #     inds <- poschar == dateString
+     #     ts[inds]
      }
 
 
      tsGetDayObject<-function(x, i, cts=TRUE, ...)
      {
-          ts = x
-          dateString=i
-          if(cts)
-         ts2realized(tsGetDay(ts, dateString))$cts$data
-         else
-         ts2realized(tsGetDay(ts, dateString))$tts$data    
+     warning("SPLUS is no longer supported.")
+     #     ts = x
+    #      dateString=i
+    #      if(cts)
+    #     ts2realized(tsGetDay(ts, dateString))$cts$data
+    #     else
+    #     ts2realized(tsGetDay(ts, dateString))$tts$data    
      }
 
 
@@ -1156,6 +1213,8 @@
          n <- length(x)
          log(x[2:n]) - log(x[1:(n-1)])
      }
+
+
 
 
 
