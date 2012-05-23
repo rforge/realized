@@ -4,12 +4,12 @@
 \title{ Realized Covariance: Kernel}
 
 \description{
-Realized c0variance calculation using a kernel estimator. 
+Realized covariance calculation using a kernel estimator. 
 }
 
 
 \usage{
-rc.kernel(x, y, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = TRUE, align.by="seconds",align.period = 1, cts = TRUE, makeReturns = FALSE)
+rc.kernel(x, y, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = TRUE, align.by="seconds",align.period = 1, cts = TRUE, makeReturns = FALSE, type = NULL, adj = NULL, q = NULL,...)
 }
 
 \arguments{
@@ -22,6 +22,10 @@ rc.kernel(x, y, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = T
   \item{align.period}{Align the tick data to this many [seconds|minutes|hours]}
   \item{cts}{Calendar Time Sampling is used}
   \item{makeReturns}{Convert to Returns}
+  \item{type}{Deprecated, use kernel.type}
+  \item{adj}{Deprecated, use kernel.dofadj}
+  \item{q}{Deprecated, use kernel.param}
+  \item{...}{...}
 }
 
 \details{
@@ -44,12 +48,15 @@ Economic Statistics}, 24:127-218, 2006.
 \seealso{\code{\link{rRealizedVariance}},\code{\link{rc.kernel}}, \code{\link{rKernel.available}},\code{\link{rKernel}}}
 \examples{
 
-data(msft.real.cts)
-data(ge.real.cts)
+#data(msft.real.cts)
+#data(ge.real.cts)
 
 # kernel realized variance for CTS aligned at one minute returns
-#
-rc.kernel(x = msft.real.cts[[1]],y = ge.real.cts[[1]], kernel.param=1, kernel.type="bartlett", align.period=60)
+data(sbux.xts)
+data(lltc.xts)
+
+# kernel realized variance for CTS aligned at one minute returns
+rc.kernel(x = sbux.xts,y = lltc.xts, kernel.param=1, kernel.type="bartlett", align.by ="seconds", align.period=60)
 
 }
 \keyword{methods}

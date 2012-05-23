@@ -9,7 +9,7 @@ Realized variance calculation using a kernel estimator.
 
 
 \usage{
-rv.kernel(x, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = TRUE, align.by="seconds",align.period = 1, cts = TRUE, makeReturns = FALSE)
+rv.kernel(x, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = TRUE, align.by="seconds",align.period = 1, cts = TRUE, makeReturns = FALSE, type = NULL, adj = NULL, q = NULL,...)
 }
 
 \arguments{
@@ -21,6 +21,10 @@ rv.kernel(x, kernel.type = "rectangular", kernel.param = 1, kernel.dofadj = TRUE
   \item{align.period}{Align the tick data to this many [seconds|minutes|hours]}
   \item{cts}{Calendar Time Sampling is used}
   \item{makeReturns}{Convert to Returns}
+   \item{type}{Deprecated, use kernel.type}
+    \item{adj}{Deprecated, use kernel.dofadj}
+  \item{q}{Deprecated, use kernel.param}
+  \item{...}{...}
 }
 
 \details{
@@ -38,17 +42,12 @@ Statistics}, 14:45-52, 1996.
 P. Hansen and A. Lunde. Realized variance and market microstructure noise. \emph{Journal of Business and
 Economic Statistics}, 24:127-218, 2006.
 }
-\author{Scott Payseur <spayseur@u.washington.edu>}
+\author{Scott Payseur <scott.payseur@gmail.com>}
 
 \seealso{\code{\link{rRealizedVariance}},\code{\link{rc.kernel}}, \code{\link{rKernel.available}},\code{\link{rKernel}}}
 \examples{
-
-data(msft.real.cts)
-data(ge.real.cts)
-
 # kernel realized variance for CTS aligned at one minute returns
-#
-rv.kernel(x = msft.real.cts[[1]], kernel.param=1, kernel.type="bartlett", align.period=60)
-
+data(sbux.xts)
+rv.kernel(x = sbux.xts, kernel.param=1, kernel.type="bartlett", align.by ="seconds", align.period=60)
 }
 \keyword{methods}

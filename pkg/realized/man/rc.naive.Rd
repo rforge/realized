@@ -31,13 +31,12 @@ T.G. Andersen, T. Bollerslev, F.X. Diebold, and P. Labys. The distribution of ex
 
 \seealso{\code{\link{rv.naive}}, \code{\link{rSignature}}, \code{\link{rRealizedVariance}}}
 \examples{
-
-
-data(msft.real.cts)
-data(ge.real.cts)
+data(sbux.xts)
+data(lltc.xts)
 
 # Traditional RC aligned to 60 seconds
 #
-rc.naive(x = msft.real.cts[[1]], y = ge.real.cts[[1]], period = 60)
+rc.naive(x = sbux.xts, y=lltc.xts, period = 60, align.by ="seconds", align.period=1)
+
 }
 \keyword{methods}
