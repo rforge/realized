@@ -103,7 +103,20 @@
              PACKAGE="realized")$tmpa     
      }
 
-
+     .multixts <- function( x, y=NULL)
+      { 
+            if(is.null(y)){
+            test = is.xts(x) && (ndays(x)!=1);
+            return(test);}
+            if(!is.null(y)){
+              test = (is.xts(x) && (ndays(x)!=1)) || ( ndays(y)!=1 && is.xts(y) );
+              if( test ){
+                test1 = dim(y) == dim(x);
+                if(!test1){ warning("Please make sure x and y have the same dimensions") }
+                if(test1){  test = list( TRUE, cbind(x,y) ); return(test) }
+              }
+            }
+      }      
 
 
      #########################################################################
@@ -186,10 +199,19 @@
                            type = NULL,                   # Deprectated
                            adj = NULL,                    # Deprectated
                            q = NULL, ...){                     # Deprectated
-                           
-          #
-          # Handle deprication
-          #
+          # Multiday adjustment: 
+          multixts = .multixts(x);
+          if(multixts){
+            result = apply.daily(x,rv.kernel,kernel.type,kernel.param,kernel.dofadj,
+                                 align.by,align.period,cts,makeReturns,type,adj,q);
+            return(result)}
+          if(!multixts){ #Daily estimation:
+            
+            #
+            # Handle deprication
+            #
+            
+       
           if(!is.null(type)){
               warning("type is deprecated, use kernel.type")
               kernel.type=type
@@ -212,6 +234,7 @@
                      as.integer(type), ab=double(kernel.param + 1),
                      ab2=double(kernel.param + 1),
                      ans=double(1),PACKAGE="realized")$ans
+          }
      }
 
      rc.kernel <- function(x,                             # Tick Data for first asset
@@ -310,15 +333,21 @@
      }
 
      rv.timescale <- function(x, period, align.by="seconds", align.period=1,adj.type="classic", cts=TRUE, makeReturns=FALSE, ...)
-     {
-          align.period = .getAlignPeriod(align.period, align.by)
-          x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
-
-          n <- dim(as.matrix(x))[[1]]
-          nbar <- (n-period+1)/(period)
-          adj <- switch(adj.type, classic=1, adj=(1-(nbar/n))^-1, aa= n/((period-1)*nbar))
-          adj * (mean(rv.avg(x, period)) - ((nbar/n) * rv.naive(x,1)))
-     }
+     {     
+          # Multiday adjustment: 
+          multixts = .multixts(x);
+            if(multixts){
+              result = apply.daily(x,rv.timescale,period,align.by,align.period,adj.type,cts,makeReturns);
+              return(result)}
+            if(!multixts){
+              align.period = .getAlignPeriod(align.period, align.by)
+              x <- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period);
+              n <- dim(as.matrix(x))[[1]]
+              nbar <- (n-period+1)/(period)
+              adj <- switch(adj.type, classic=1, adj=(1-(nbar/n))^-1, aa= n/((period-1)*nbar))
+              adj * (mean(rv.avg(x, period)) - ((nbar/n) * rv.naive(x,1)))
+          }
+     } 
 
      rc.timescale <- function(x,y, period, align.by="seconds", align.period=1, adj.type="classic", cts=TRUE, makeReturns=FALSE,...)
      {
@@ -333,11 +362,18 @@
      }
 
      rv.avg <- function(x, period, align.by="seconds", align.period=1, cts=TRUE, makeReturns=FALSE, ...)
-     {
+     { 
+       # Multiday adjustment: 
+       multixts = .multixts(x);
+       if(multixts){
+         result = apply.daily(x,rv.avg,period,align.by,align.period,cts,makeReturns);
+         return(result)}
+       if(!multixts){ #Daily estimation:
           align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           mean(.rv.subsample(x, period, ...))
-     }
+       }  
+     } 
 
      rc.avg <- function(x, y,  period, align.by="seconds", align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
@@ -355,7 +391,13 @@
      #########################################################################
      rv.naive <- function(x, period, align.by = "seconds",align.period=1, cts=TRUE, makeReturns=FALSE, ...)
      {
-     
+       # Multiday adjustment: 
+       multixts = .multixts(x);
+       if(multixts){
+         result = apply.daily(x,rv.naive,period,align.by,align.period,cts,makeReturns);
+         return(result)}
+       if(!multixts){
+       
           align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           .C("rv", 
@@ -368,15 +410,16 @@
                     as.integer(length(x)/period), #tmpn
                     ans = double(1), 
                     COPY=c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE), 
-                    PACKAGE="realized")$ans     
+                    PACKAGE="realized")$ans   
+       }
      }
 
      rc.naive <- function(x, y,  period,align.by = "seconds", align.period=1, cts=TRUE, makeReturns=FALSE, ...)
-     {
+     {        
           align.period = .getAlignPeriod(align.period, align.by)
           x<- .alignReturns(.convertData(x, cts=cts, makeReturns=makeReturns)$data, align.period)
           y<- .alignReturns(.convertData(y, cts=cts, makeReturns=makeReturns)$data, align.period)
-
+          
           .C("rv", 
                     as.double(x), #a
                     as.double(y), #b
