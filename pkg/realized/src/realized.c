@@ -1,10 +1,5 @@
-
 #include "R.h"
-
 #include "realized.h"
-
-
-
 
 void justKernel(double *x, int *type, double *ans)
 {

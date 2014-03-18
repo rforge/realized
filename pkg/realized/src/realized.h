@@ -17,5 +17,3 @@ void justKernel(double *x, int *type, double *ans);
 void kernelEstimator(double *a, double *b, int *na, int *q, int *adj, int *type, double *ab,  double *ab2, double *ans);
 void rvperiod(double *a, double *b, int *na, int *period, double *tmpa, double *tmpb, int *tmpna, double *ans);
 #endif
-
-

@@ -1,6 +1,7 @@
 Package: realized
-Version: 1.0
-Date: 2011-04-04
+Type: Package
+Version: 3.0
+Date: 2014-03-18
 Title: Realized
 Author: Scott Payseur <scott.payseur@gmail.com>
 Maintainer: Scott Payseur <scott.payseur@gmail.com>
